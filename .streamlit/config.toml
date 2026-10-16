@@ -1,0 +1,25 @@
+[theme]
+base = "light"
+primaryColor = "#6C4DF6"
+backgroundColor = "#F7F5FF"
+secondaryBackgroundColor = "#FFFFFF"
+textColor = "#1E1B3A"
+font = "sans serif"
+borderColor = "#E6E0FA"
+showWidgetBorder = true
+greenColor = "#1FA971"
+greenTextColor = "#116B47"
+greenBackgroundColor = "#E4F6ED"
+redColor = "#E5484D"
+redTextColor = "#A5252B"
+redBackgroundColor = "#FDECEE"
+yellowColor = "#F5A524"
+yellowTextColor = "#805000"
+yellowBackgroundColor = "#FFF6E3"
+
+[server]
+maxUploadSize = 5
+address = "127.0.0.1"
+
+[browser]
+gatherUsageStats = false

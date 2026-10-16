@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+* { box-sizing: border-box; } body { margin: 0; font: 13px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #1E1B3A; }
+.frame { background: white; border: 1px solid #E6E0FA; border-radius: 12px; overflow: hidden; }
+.scroll { height: 400px; overflow: auto; }
+table { width: 100%; border-collapse: collapse; white-space: nowrap; text-align: left; }
+caption { text-align: left; padding: 10px 14px; font-size: 12px; color: #625B7B; }
+th { background: #F7F5FF; position: sticky; top: 0; z-index: 2; color: #625B7B; font-size: 11px; }
+th, td { padding: 9px 14px; border-bottom: 1px solid #F0ECFA; height: 38px; }
+th button { width: 100%; text-align: inherit; background: transparent; border: 0; padding: 0; color: inherit; font: inherit; font-weight: 650; cursor: pointer; }
+th button::after { content: ' ↕'; color: #8F86AA; }
+th[aria-sort="ascending"] button::after { content: ' ↑'; color: #6C4DF6; }
+th[aria-sort="descending"] button::after { content: ' ↓'; color: #6C4DF6; }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+tbody tr:hover { background: #FAF8FF; } tbody tr.weekend td:first-child { box-shadow: inset 3px 0 #F5A524; }
+.badge, .broker { display: inline-block; border-radius: 6px; font-size: 10px; font-weight: 700; padding: 4px 8px; letter-spacing: .035em; }
+.buy { background: #E4F6ED; color: #116B47; border: 1px solid #1FA97140; }
+.sell { background: #FDECEE; color: #A5252B; border: 1px solid #E5484D40; }
+.broker { letter-spacing: 0; font-weight: 550; }
+.broker-0 { background: #EEE9FF; color: #5635B8; } .broker-1 { background: #F1EAFC; color: #704698; }
+.broker-2 { background: #EEECFC; color: #574C92; } .broker-3 { background: #DDF7F2; color: #176659; }
+.flag { border: 0; background: #FFF0CE; color: #805000; border-radius: 4px; font-size: 11px; margin-left: 6px; cursor: help; padding: 1px 4px; }
+.flag:focus::after, .flag:hover::after { content: attr(aria-label); display: block; white-space: normal;
+  position: fixed; bottom: 62px; left: 16px; max-width: 350px; padding: 12px; border-radius: 8px;
+  background: #1E1B3A; color: white; z-index: 5; text-align: left; box-shadow: 0 3px 16px #1E1B3A30; }
+button:focus-visible, select:focus-visible { outline: 2px solid #6C4DF6; outline-offset: 3px; }
+.pager { display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-top: 1px solid #E6E0FA; font-size: 12px; color: #625B7B; }
+.pager button, select { border: 1px solid #E6E0FA; border-radius: 6px; background: white; padding: 5px 9px; color: #5635B8; cursor: pointer; }
+.pager button:disabled { opacity: .45; cursor: default; } #page-label { flex: 1; }
+</style></head><body>
+<div class="frame"><div class="scroll"><table aria-label="Saved transactions">
+<caption>Click a column heading to sort · All values in USD</caption>
+<thead><tr>
+<th scope="col"><button data-column="0">Ticker</button></th>
+<th scope="col"><button data-column="1">Date</button></th>
+<th scope="col"><button data-column="2">Trade</button></th>
+<th scope="col" class="num"><button data-column="3" data-numeric="true">Quantity</button></th>
+<th scope="col" class="num"><button data-column="4" data-numeric="true">Price</button></th>
+<th scope="col" class="num"><button data-column="5" data-numeric="true">Total value</button></th>
+<th scope="col"><button data-column="6">Broker</button></th>
+</tr></thead><tbody><!--ROWS--></tbody></table></div>
+<div class="pager"><span id="page-label" aria-live="polite"></span>
+<label for="page-size">Rows</label><select id="page-size"><option>25</option><option>50</option><option>100</option></select>
+<button id="previous" aria-label="Previous page">←</button><button id="next" aria-label="Next page">→</button></div></div>
+<script>
+const body = document.querySelector('tbody');
+let rows = Array.from(body.rows), page = 0, size = 25, sortedColumn = -1, ascending = true;
+function render() {
+  body.replaceChildren(...rows.slice(page * size, (page + 1) * size));
+  document.querySelector('#page-label').textContent = `${page * size + 1}–${Math.min((page + 1) * size, rows.length)} of ${rows.length} transactions`;
+  document.querySelector('#previous').disabled = page === 0;
+  document.querySelector('#next').disabled = (page + 1) * size >= rows.length;
+  document.querySelector('.scroll').scrollTop = 0;
+}
+document.querySelectorAll('th button').forEach(button => button.addEventListener('click', () => {
+  const column = Number(button.dataset.column);
+  ascending = sortedColumn === column ? !ascending : true; sortedColumn = column;
+  rows.sort((a, b) => {
+    const x = a.cells[column].dataset.sort, y = b.cells[column].dataset.sort;
+    const comparison = button.dataset.numeric ? Number(x) - Number(y) : x.localeCompare(y);
+    return ascending ? comparison : -comparison;
+  });
+  document.querySelectorAll('th').forEach(th => th.removeAttribute('aria-sort'));
+  button.parentElement.setAttribute('aria-sort', ascending ? 'ascending' : 'descending');
+  page = 0; render();
+}));
+document.querySelector('#previous').addEventListener('click', () => { page--; render(); });
+document.querySelector('#next').addEventListener('click', () => { page++; render(); });
+document.querySelector('#page-size').addEventListener('change', event => { size = Number(event.target.value); page = 0; render(); });
+render();
+</script></body></html>
